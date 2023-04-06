@@ -1,0 +1,7 @@
+#!/usr/bin/with-contenv sh
+
+GEOMETRY="${SCREEN_WIDTH}""x""${SCREEN_HEIGHT}""x""${SCREEN_DEPTH}"
+s6-echo "Starting Xvfb ${GEOMETRY}"
+
+rm -f /tmp/.X*lock
+Xvfb ":${DISPLAY_NUM}" -screen 0 ${GEOMETRY} -fbdir /var/tmp -dpi ${SCREEN_DPI} -listen tcp -noreset -ac +extension GLX >/var/log/xvfb.log 2>&1

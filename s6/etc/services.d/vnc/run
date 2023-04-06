@@ -1,0 +1,26 @@
+#!/usr/bin/with-contenv sh
+
+if [ ! -z "${VNC_PASSWORD}" ]; then
+  X11VNC_OPTS=-usepw
+  # TODO: password authentication
+else
+  s6-echo "Starting VNC server without password authentication"
+  X11VNC_OPTS=-nopw
+fi
+
+if [ ! -z "${VNC_VIEW_ONLY}" ]; then
+  s6-echo "Starting VNC server with viewonly option"
+  X11VNC_OPTS="${X11VNC_OPTS} -viewonly"
+fi
+
+for i in $(seq 1 10)
+do
+  s6-sleep 1
+  xdpyinfo -display ${DISPLAY} >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    break
+  fi
+  s6-echo "Waiting for Xvfb..."
+done
+
+x11vnc ${X11VNC_OPTS} -forever -shared -rfbport ${VNC_PORT:-5900} -rfbportv6 ${VNC_PORT:-5900} -display ${DISPLAY} -noxdamage >/var/log/vnc.log 2>&1

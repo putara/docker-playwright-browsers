@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv sh
+
+s6-echo "Starting noVNC"
+/opt/bin/noVNC/utils/novnc_proxy --listen ${NO_VNC_PORT:-7900} --vnc localhost:${VNC_PORT:-5900}

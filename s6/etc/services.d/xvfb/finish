@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv sh
+
+s6-echo "Stopping Xvfb"
+pkill -9 xvfb-run

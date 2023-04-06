@@ -1,0 +1,14 @@
+{
+  "name": "test",
+  "scripts": {
+    "start": "node server.js",
+    "test": "playwright test",
+    "chrome": "playwright test --project=chrome",
+    "firefox": "playwright test --project=firefox",
+    "safari": "playwright test --project=safari"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.27.0"
+  }
+}
