@@ -8,4 +8,5 @@ WORKDIR /tmp/playwright
 RUN echo '\033[1;36mInstalling NPM dependencies\033[0m' && \
     npm i
 
+ENV COLORTERM=1
 CMD [ "sh", "-c", "npm run $TEST_RUNNER" ]
