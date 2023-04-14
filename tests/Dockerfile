@@ -1,5 +1,7 @@
+ARG BRANCH=test-docker-playwright
+ARG APP=chrome
 ARG TAG=latest
-FROM quay.io/putara/docker-playwright-chrome:$TAG
+FROM quay.io/putara/$BRANCH/$APP:$TAG
 
 COPY ./playwright /tmp/playwright
 WORKDIR /tmp/playwright
