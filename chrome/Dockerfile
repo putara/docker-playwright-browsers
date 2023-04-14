@@ -32,6 +32,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/ \
       x11vnc \
       fluxbox \
       feh \
+      python3-numpy \
       libfontconfig \
       libfreetype6 \
       xfonts-cyrillic \
