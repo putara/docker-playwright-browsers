@@ -32,8 +32,10 @@ jobs:
         run: |
           if [[ "${{ github.ref_name }}" == "main" ]]; then
             echo "branch=docker-playwright" >> $GITHUB_ENV
+            echo "expires=10w" >> $GITHUB_ENV
           else
             echo "branch=test-docker-playwright" >> $GITHUB_ENV
+            echo "expires=3d" >> $GITHUB_ENV
             echo "playwright=${{ env.playwright }}-${{ github.sha }}" >> $GITHUB_ENV
           fi
       - name: Checkout
@@ -55,6 +57,7 @@ jobs:
         with:
           context: .
           file: ./chrome/Dockerfile
+          labels: quay.expires-after=${{ env.expires }}
           push: true
           tags: quay.io/putara/${{ env.branch }}/chrome:${{ env.playwright }}
 
