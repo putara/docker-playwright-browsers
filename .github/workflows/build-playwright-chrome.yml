@@ -100,7 +100,8 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: echo "${{ secrets.QUAY_PASSWORD }}" | docker login quay.io -u "${{ secrets.QUAY_USERNAME }}" --password-stdin
       - name: Tag the latest
-        if: steps.cache.outputs.cache-hit != 'true' && github.ref_name == 'main'
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          docker tag quay.io/putara/${{ env.branch }}/chrome:${{ env.playwright }} quay.io/putara/docker-playwright/chrome:latest
+          docker pull quay.io/putara/${{ env.branch }}/chrome:${{ env.playwright }}
+          docker tag quay.io/putara/${{ env.branch }}/chrome:${{ env.playwright }} quay.io/putara/${{ env.branch }}/chrome:latest
           docker push quay.io/putara/${{ env.branch }}/chrome:latest
