@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+npx playwright install-deps chromium
+npx playwright install chromium
+
+CHROME_LOCATOR="find /root/.cache/ms-playwright/ -maxdepth 1 -type d -name 'chromium-*' | sort -rn | head -1"
+CHROME_DIR=$(eval $CHROME_LOCATOR)
+CHROME_DIR=$CHROME_DIR/chrome-linux
+LAUNCHER_DIR=/opt/docker-playwright
+
+chrome_path=$CHROME_DIR/chrome
+if [ ! -f $chrome_path ]; then
+  echo 'Chrome is not found'
+  exit 1
+fi
+
+if [[ ! -d "$LAUNCHER_DIR" ]]; then
+  mkdir -p "$LAUNCHER_DIR"
+fi
+
+chrome_logo=$(find "$CHROME_DIR" -maxdepth 1 -name 'product_logo_*' | head -1)
+launcher_logo=$LAUNCHER_DIR/chrome.${chrome_logo##*.}
+if [ -f "$chrome_logo" ]; then
+  cp "$chrome_logo" "$launcher_logo"
+fi
+
+launcher_path=$LAUNCHER_DIR/chrome-launcher
+fluxbox_menu=/root/.fluxbox/menu
+if [ ! -f $fluxbox_menu ]; then
+  mkdir -p /root/.fluxbox
+  echo -e '[begin] (fluxbox)\n[include] (/etc/X11/fluxbox/fluxbox-menu)\n[end]' > $fluxbox_menu
+fi
+if ! cat $fluxbox_menu | grep "$chrome_logo" > /dev/null; then
+  sed -e "/(fluxbox)/a [submenu] (Playwright) {}\n[exec] (Google Chrome) \{${launcher_path}\} <${launcher_logo}>\n[end]" -i $fluxbox_menu
+fi
+
+cat > "$launcher_path" <<_EOF
+#!/bin/bash
+
+# umask 002 ensures default permissions of files are 664 (rw-rw-r--) and directories are 775 (rwxrwxr-x).
+umask 002
+
+chrome_path=\$($CHROME_LOCATOR)/chrome-linux/chrome
+if [ ! -f "\$chrome_path" ]; then
+  echo "Chrome is not found"
+  exit 1
+fi
+
+# Note: exec -a below is a bashism.
+exec -a "\$0" "\$chrome_path" \
+  --allow-running-insecure-content \
+  --disable-background-networking \
+  --disable-client-side-phishing-detection \
+  --disable-default-apps \
+  --disable-hang-monitor \
+  --disable-sync \
+  --ignore-certificate-errors \
+  --ignore-urlfetcher-cert-requests \
+  --no-first-run \
+  --no-sandbox \
+  "\$@"
+_EOF
+chmod +x "$launcher_path"

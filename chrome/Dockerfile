@@ -1,4 +1,6 @@
-FROM node:18-buster
+# ARG UPSTREAM=18-bullseye
+ARG UPSTREAM=18-buster
+FROM node:${UPSTREAM}
 
 ENV DEBIAN_FRONTEND=noninteractive \
     DEBCONF_NONINTERACTIVE_SEEN=true
@@ -40,7 +42,17 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/ \
       fonts-liberation \
       fonts-ipafont-gothic \
       fonts-wqy-zenhei \
-      fonts-tlwg-loma-otf && \
+      fonts-tlwg-loma-otf \
+      libnss3 \
+      libnspr4 \
+      libatk1.0-0 \
+      libatk-bridge2.0-0 \
+      libcups2 \
+      libatspi2.0-0 \
+      libxcomposite1 \
+      libgbm1 \
+      libxkbcommon0 \
+      && \
     apt-get -qyy clean
 
 ARG NOVNC_VER=1.4.0
@@ -70,27 +82,16 @@ RUN mkdir -p /tmp/.X11-unix && \
 # Service scripts
 COPY ./s6/ /
 
-ARG CHROME_VERSION="google-chrome-stable"
+# Setup Chrome
+COPY ./chrome/setup /opt/bin/chrome-setup
+
 RUN --mount=type=cache,target=/var/lib/apt/lists/ \
     --mount=type=cache,target=/var/cache/apt/ \
-    echo '\033[1;36mInstalling Chrome dependencies\033[0m' && \
-    curl -sL https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-    echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
+    echo '\033[1;36mInstalling Playwright Chrome\033[0m' && \
     apt-get update -qqy && \
-    apt-get install -s "${CHROME_VERSION}" | \
-      sed -n -e "/^Inst ${CHROME_VERSION} /d" -e 's/^Inst \([^ ]\+\) .*$/\1/p' | \
-      xargs apt-get install -qqy && \
-    apt-get -qyy clean && \
-    rm /etc/apt/sources.list.d/google-chrome.list
-
-COPY ./chrome/installer /opt/bin/chrome-installer
-COPY ./playwright/package.json /tmp/playwright/package.json
-RUN echo '\033[1;36mInstalling Playwright Chrome\033[0m' && \
-    chmod +x /opt/bin/chrome-installer && \
-    cd /tmp/playwright && \
-    npm i && \
-    /opt/bin/chrome-installer && \
-    rm -rf /tmp/playwright
+    npm i -g playwright && \
+    /opt/bin/chrome-setup && \
+    apt-get -qyy clean
 
 ENV SCREEN_WIDTH=1280
 ENV SCREEN_HEIGHT=720
