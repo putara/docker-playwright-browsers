@@ -1,5 +1,4 @@
-# ARG UPSTREAM=18-bullseye
-ARG UPSTREAM=18-buster
+ARG UPSTREAM=22-bookworm
 FROM node:${UPSTREAM}
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -35,23 +34,10 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/ \
       fluxbox \
       feh \
       python3-numpy \
-      libfontconfig \
+      x11-utils \
+      libfontconfig1 \
       libfreetype6 \
-      xfonts-cyrillic \
       xfonts-scalable \
-      fonts-liberation \
-      fonts-ipafont-gothic \
-      fonts-wqy-zenhei \
-      fonts-tlwg-loma-otf \
-      libnss3 \
-      libnspr4 \
-      libatk1.0-0 \
-      libatk-bridge2.0-0 \
-      libcups2 \
-      libatspi2.0-0 \
-      libxcomposite1 \
-      libgbm1 \
-      libxkbcommon0 \
       && \
     apt-get -qyy clean
 
