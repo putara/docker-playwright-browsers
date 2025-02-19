@@ -33,10 +33,11 @@ jobs:
           if [[ "${{ github.ref_name }}" == "main" ]]; then
             echo "branch=docker-playwright" >> $GITHUB_ENV
             echo "expires=10w" >> $GITHUB_ENV
+            echo "tag=${{ env.playwright }}" >> $GITHUB_ENV
           else
             echo "branch=test-docker-playwright" >> $GITHUB_ENV
             echo "expires=3d" >> $GITHUB_ENV
-            echo "playwright=${{ env.playwright }}-${{ github.sha }}" >> $GITHUB_ENV
+            echo "tag=${{ env.playwright }}-${{ github.sha }}" >> $GITHUB_ENV
           fi
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,9 +58,12 @@ jobs:
         with:
           context: .
           file: ./chrome/Dockerfile
+          build-args: |
+            UPSTREAM=22-bookworm
+            PLAYWRIGHT_VERSION=${{ env.playwright }}
           labels: quay.expires-after=${{ env.expires }}
           push: true
-          tags: quay.io/putara/${{ env.branch }}/chrome:${{ env.playwright }}
+          tags: quay.io/putara/${{ env.branch }}/chrome:${{ env.tag }}
 
   test:
     runs-on: ubuntu-latest
@@ -83,16 +87,17 @@ jobs:
         run: |
           if [[ "${{ github.ref_name }}" == "main" ]]; then
             echo "branch=docker-playwright" >> $GITHUB_ENV
+            echo "tag=${{ env.playwright }}" >> $GITHUB_ENV
           else
             echo "branch=test-docker-playwright" >> $GITHUB_ENV
-            echo "playwright=${{ env.playwright }}-${{ github.sha }}" >> $GITHUB_ENV
+            echo "tag=${{ env.playwright }}-${{ github.sha }}" >> $GITHUB_ENV
           fi
       - name: Checkout
         uses: actions/checkout@v4
         if: steps.cache.outputs.cache-hit != 'true'
       - name: Build test
         if: steps.cache.outputs.cache-hit != 'true'
-        run: docker build -f tests/Dockerfile -t test . --build-arg BRANCH=${{ env.branch }} --build-arg APP=chrome --build-arg TAG=${{ env.playwright }}
+        run: docker build -f tests/Dockerfile -t test . --build-arg BRANCH=${{ env.branch }} --build-arg APP=chrome --build-arg TAG=${{ env.tag }}
       - name: Run test
         if: steps.cache.outputs.cache-hit != 'true'
         run: docker start -a $(docker container create -e TEST_RUNNER=chrome test)
@@ -102,6 +107,6 @@ jobs:
       - name: Tag the latest
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          docker pull quay.io/putara/${{ env.branch }}/chrome:${{ env.playwright }}
-          docker tag quay.io/putara/${{ env.branch }}/chrome:${{ env.playwright }} quay.io/putara/${{ env.branch }}/chrome:latest
+          docker pull quay.io/putara/${{ env.branch }}/chrome:${{ env.tag }}
+          docker tag quay.io/putara/${{ env.branch }}/chrome:${{ env.tag }} quay.io/putara/${{ env.branch }}/chrome:latest
           docker push quay.io/putara/${{ env.branch }}/chrome:latest

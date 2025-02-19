@@ -68,11 +68,12 @@ RUN mkdir -p /tmp/.X11-unix && \
 # Setup Chrome
 COPY ./chrome/setup /opt/bin/chrome-setup
 
+ARG PLAYWRIGHT_VERSION=v1.50.1
 RUN --mount=type=cache,target=/var/lib/apt/lists/ \
     --mount=type=cache,target=/var/cache/apt/ \
-    echo '\033[1;36mInstalling Playwright Chrome\033[0m' && \
-    apt-get update -qqy && \
-    npm i -g playwright && \
+    echo '\033[1;36mInstalling Playwright' $PLAYWRIGHT_VERSION 'with Chrome\033[0m' && \
+    apt-get -qqy update && \
+    npm i -g playwright@${PLAYWRIGHT_VERSION} && \
     /opt/bin/chrome-setup && \
     apt-get -qyy clean
 
