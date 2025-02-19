@@ -55,18 +55,15 @@ RUN --mount=type=cache,target=/tmp/vnc/ \
     rm -rf "/tmp/vnc/websockify/websockify-${WEBSOCKIFY_VER}/tests" && \
     mv "/tmp/vnc/websockify/websockify-${WEBSOCKIFY_VER}" /opt/bin/noVNC/utils/websockify
 
-# TODO: upgrade to 3.x
-ARG S6_OVL_VERSION=2.2.0.3
+ARG S6_OVL_VERSION=3.2.0.2
 RUN echo '\033[1;36mInstalling S6 overlay\033[0m' && \
-    curl -sSL "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVL_VERSION}/s6-overlay-amd64.tar.gz" | tar -zxf - -C /
+    curl -sSL "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVL_VERSION}/s6-overlay-noarch.tar.xz" | tar -Jxpf - -C / && \
+    curl -sSL "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVL_VERSION}/s6-overlay-x86_64.tar.xz" | tar -Jxpf - -C /
 
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 RUN mkdir -p /tmp/.X11-unix && \
     chmod 1777 /tmp/.X11-unix && \
     chmod +x /dev/shm
-
-# Service scripts
-COPY ./s6/ /
 
 # Setup Chrome
 COPY ./chrome/setup /opt/bin/chrome-setup
@@ -78,6 +75,9 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/ \
     npm i -g playwright && \
     /opt/bin/chrome-setup && \
     apt-get -qyy clean
+
+# Service scripts
+COPY ./s6/ /etc/s6-overlay/s6-rc.d/
 
 ENV SCREEN_WIDTH=1280
 ENV SCREEN_HEIGHT=720

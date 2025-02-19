@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 
 s6-echo "Stopping VNC server"
 pkill -9 x11vnc

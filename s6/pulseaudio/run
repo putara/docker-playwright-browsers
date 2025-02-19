@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 
 s6-echo "Starting pulseaudio"
 pulseaudio --system --exit-idle-time=-1 -F /etc/services.d/pulseaudio/init.pa >/var/log/pulseaudio.log 2>&1

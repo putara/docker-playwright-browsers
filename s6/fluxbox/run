@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/command/with-contenv sh
 
 s6-echo "Starting fluxbox"
 /usr/bin/fluxbox -display ${DISPLAY} >/var/log/fluxbox.log 2>&1
