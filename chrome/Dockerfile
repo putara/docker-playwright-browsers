@@ -41,8 +41,8 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/ \
       && \
     apt-get -qyy clean
 
-ARG NOVNC_VER=1.4.0
-ARG WEBSOCKIFY_VER=0.11.0
+ARG NOVNC_VER=1.5.0
+ARG WEBSOCKIFY_VER=0.13.0
 RUN --mount=type=cache,target=/tmp/vnc/ \
     echo '\033[1;36mInstalling VNC server\033[0m' && \
     mkdir -p /opt/bin && \
